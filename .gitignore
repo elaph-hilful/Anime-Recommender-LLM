@@ -4,6 +4,13 @@
 .env.development
 .env.production
 
+
+# Log files
+logs/
+*.log
+Anime_Recommender_System.egg-info/
+
+
 # Virtual Environment
 venv/
 ENV/
