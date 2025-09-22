@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1 \
 WORKDIR /app
 
 ## Install system dependencies
-RUN apt-get udpate && aptget install -y \
+RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
