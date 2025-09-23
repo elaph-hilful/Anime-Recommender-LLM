@@ -1,30 +1,18 @@
-## Parent docker image
-FROM python:3.10-slim
-
-## Esential environment variables
-ENV PYTHONDONTWRITEBYTECODE 1 \
-    PYTHONUNBUFFERED 1
-
-
-
-## Set work directory
+# Builder
+FROM python:3.11-slim as builder
+RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-## Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-## Comping all the contents from repo to app
 COPY . .
+RUN pip install --no-cache-dir --user -e .
 
-
-## Run setup.py
-RUN pip install --no-cache-dir -e .
-
-## Expose the port 8501
+# Runtime
+FROM python:3.11-slim
+RUN groupadd --gid 1001 appuser && useradd --uid 1001 --gid 1001 --create-home appuser
+WORKDIR /app
+COPY --from=builder /root/.local /home/appuser/.local
+COPY --from=builder /app /app
+RUN chown -R appuser:appuser /app
+ENV PATH=/home/appuser/.local/bin:$PATH
+USER 1001
 EXPOSE 8501
-
-
 CMD ["streamlit", "run", "app/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
